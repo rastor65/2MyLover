@@ -120,13 +120,12 @@ export function Footer() {
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-muted flex-shrink-0 mt-0.5" />
                 <div className="text-muted text-sm">
-                  <p>Av. Reforma 123</p>
-                  <p>Ciudad de México, CDMX</p>
+                  <p>Riohacha - La Guajira, Colombia</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Phone className="h-5 w-5 text-muted flex-shrink-0" />
-                <p className="text-muted text-sm">+52 55 1234 5678</p>
+                <p className="text-muted text-sm">+57 313 435 2116</p>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="h-5 w-5 text-muted flex-shrink-0" />
@@ -140,7 +139,7 @@ export function Footer() {
 
         {/* Bottom Footer */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-muted text-sm">© 2024 2MyLover. Todos los derechos reservados.</p>
+          <p className="text-muted text-sm">©2025 AlfaCode. Todos los derechos reservados.</p>
           <div className="flex gap-6 text-sm">
             <Link href="/privacidad" className="text-muted hover:text-foreground transition-colors">
               Política de Privacidad
