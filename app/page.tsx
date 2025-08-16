@@ -93,32 +93,32 @@ export default function HomePage() {
               {
                 name: "Suéter Minimalista Negro",
                 price: "$89.99",
-                image: "/minimalist-black-sweater.png",
+                image: "/2MyLover/minimalist-black-sweater.png",
               },
               {
                 name: "Gorra Urbana Blanca",
                 price: "$34.99",
-                image: "/minimalist-white-cap.png",
+                image: "/2MyLover/minimalist-white-cap.png",
               },
               {
                 name: "Hoodie Oversized",
                 price: "$124.99",
-                image: "/oversized-black-hoodie-urban.png",
+                image: "/2MyLover/oversized-black-hoodie-urban.png",
               },
               {
                 name: "Camiseta Essential",
                 price: "$49.99",
-                image: "/white-essential-t-shirt.png",
+                image: "/2MyLover/white-essential-t-shirt.png",
               },
               {
                 name: "Chaqueta Bomber",
                 price: "$159.99",
-                image: "/black-bomber-minimalist.png",
+                image: "/2MyLover/black-bomber-minimalist.png",
               },
               {
                 name: "Accesorios Pack",
                 price: "$79.99",
-                image: "/minimalist-bw-accessories.png",
+                image: "/2MyLover/minimalist-bw-accessories.png",
               },
             ].map((product, index) => (
               <Card
@@ -183,10 +183,10 @@ export default function HomePage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              "/urban-fashion-lookbook-bw-1.png",
-              "/urban-minimalist-lookbook-2.png",
-              "/urban-fashion-lookbook-3.png",
-              "/placeholder.svg?height=300&width=300",
+              "/2MyLover/urban-fashion-lookbook-bw-1.png",
+              "/2MyLover/urban-minimalist-lookbook-2.png",
+              "/2MyLover/urban-fashion-lookbook-3.png",
+              "/2MyLover/placeholder.svg?height=300&width=300",
             ].map((src, index) => (
               <div key={index} className="relative group cursor-pointer overflow-hidden rounded-lg">
                 <Image
