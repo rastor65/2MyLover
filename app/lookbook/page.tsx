@@ -54,7 +54,7 @@ const lookbookItems = [
     id: 4,
     title: "Monochrome Mastery",
     description: "Dominio absoluto del contraste en blanco y negro",
-    image: "/2MyLover/monochrome-street-style.png",
+    image: "/2MyLover/monochrome-urban-model.png",
     products: [
       { name: "Suéter Cuello Alto Blanco", price: 94.99, id: 7 },
       { name: "Gorra Snapback Negra", price: 39.99, id: 8 },
@@ -191,9 +191,8 @@ export default function LookbookPage() {
           {filteredLooks.map((look, index) => (
             <Card
               key={look.id}
-              className={`group cursor-pointer border-0 shadow-none hover:shadow-xl transition-all duration-500 ${
-                index % 3 === 1 ? "md:mt-12" : ""
-              }`}
+              className={`group cursor-pointer border-0 shadow-none hover:shadow-xl transition-all duration-500 ${index % 3 === 1 ? "md:mt-12" : ""
+                }`}
               onClick={() => setSelectedLook(look.id)}
             >
               <CardContent className="p-0">
@@ -339,7 +338,10 @@ export default function LookbookPage() {
             <p className="text-muted text-lg mb-6">Descubre cómo nuestra comunidad lleva el estilo 2MyLover</p>
             <Button variant="outline" className="gap-2 bg-transparent">
               <Instagram className="h-4 w-4" />
-              @2mylover
+              <a href="https://www.instagram.com/2myloverrr/?hl=es-la" target="_blank" rel="noopener noreferrer">
+                @2myloverrr
+              </a>
+
               <ExternalLink className="h-4 w-4" />
             </Button>
           </div>
