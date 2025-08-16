@@ -46,5 +46,4 @@ export const products: Product[] = [
     reviews: 24,
     stock: 15
   }
-  // Agrega más productos aquí...
 ];
