@@ -54,7 +54,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40 z-10" />
-        <Image src="/monochrome-urban-model.png" alt="2MyLover Hero" fill className="object-cover" priority />
+        <Image src="/2MyLover/monochrome-urban-model.png" alt="2MyLover Hero" fill className="object-cover" priority />
         <div className="relative z-20 text-center text-white max-w-4xl px-4">
           <h2 className="font-serif text-5xl md:text-7xl font-bold mb-6 tracking-tight">
             Vístete con estilo,
