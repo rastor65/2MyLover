@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  output: 'standalone',
   trailingSlash: true,
   basePath: process.env.NODE_ENV === 'production' ? '/2MyLover' : '',
   images: { unoptimized: true },
