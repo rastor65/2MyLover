@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${playfair.className} ${inter.className} antialiased`}>
+    <html lang="es" className={`${playfair.variable} ${inter.variable} antialiased`}>
       <body className="font-sans">
         <CartProvider>{children}</CartProvider>
       </body>
