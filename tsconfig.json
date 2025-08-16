@@ -5,6 +5,7 @@
       "dom.iterable",
       "esnext"
     ],
+    "baseUrl": ".",
     "allowJs": true,
     "target": "ES6",
     "skipLibCheck": true,
@@ -22,11 +23,7 @@
         "name": "next"
       }
     ],
-    "paths": {
-      "@/*": [
-        "./*"
-      ]
-    }
+    "paths": { "@/*": ["./*"] },
   },
   "include": [
     "**/*.ts",

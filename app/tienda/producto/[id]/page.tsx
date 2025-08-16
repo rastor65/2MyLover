@@ -1,71 +1,34 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ShoppingBag, Heart, Share2, Minus, Plus, Star, ArrowLeft } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
-import { useParams } from "next/navigation"
-import { useCart } from "@/contexts/cart-context"
-import { CartDrawer } from "@/components/cart-drawer"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ShoppingBag, Heart, Share2, Minus, Plus, Star, ArrowLeft } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { useCart } from "@/contexts/cart-context";
+import { CartDrawer } from "@/components/cart-drawer";
+import type { Product } from "@/data/products";
 
-// Mock product data (in a real app, this would come from an API)
-const getProductById = (id: string) => {
-  const products = [
-    {
-      id: 1,
-      name: "Suéter Minimalista Negro",
-      price: 89.99,
-      originalPrice: 109.99,
-      category: "sueteres",
-      sizes: ["S", "M", "L", "XL"],
-      colors: ["Negro"],
-      images: [
-        "/minimalist-black-sweater.png",
-        "/black-sweater-front.png",
-        "/black-sweater-back-view.png",
-        "/placeholder-guk1p.png",
-      ],
-      description:
-        "Suéter minimalista de alta calidad confeccionado en algodón premium. Diseño atemporal que combina comodidad y estilo urbano.",
-      features: [
-        "100% Algodón orgánico",
-        "Corte regular fit",
-        "Cuello redondo",
-        "Costuras reforzadas",
-        "Lavable a máquina",
-      ],
-      isNew: true,
-      onSale: true,
-      rating: 4.8,
-      reviews: 24,
-      stock: 15,
-    },
-    // Add more products as needed
-  ]
+type Props = { product: Product };
 
-  return products.find((p) => p.id === Number.parseInt(id)) || products[0]
-}
+export default function ProductClient({ product }: Props) {
+  const { addItem, openCart } = useCart();
 
-export default function ProductPage() {
-  const params = useParams()
-  const product = getProductById(params.id as string)
-  const { addItem, openCart } = useCart()
-
-  const [selectedSize, setSelectedSize] = useState("")
-  const [selectedColor, setSelectedColor] = useState(product.colors[0])
-  const [quantity, setQuantity] = useState(1)
-  const [selectedImage, setSelectedImage] = useState(0)
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState(product.colors[0]);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      alert("Por favor selecciona una talla")
-      return
+      alert("Por favor selecciona una talla");
+      return;
     }
 
+    // Nota: si tu contexto de carrito espera id numérico, ajusta el tipo a string | number
     addItem({
       id: product.id,
       name: product.name,
@@ -74,11 +37,11 @@ export default function ProductPage() {
       size: selectedSize,
       color: selectedColor,
       stock: product.stock,
-      quantity: quantity,
-    })
+      quantity
+    });
 
-    openCart()
-  }
+    openCart();
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -119,13 +82,9 @@ export default function ProductPage() {
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-8 text-sm text-muted">
-          <Link href="/" className="hover:text-foreground">
-            Inicio
-          </Link>
+          <Link href="/" className="hover:text-foreground">Inicio</Link>
           <span>/</span>
-          <Link href="/tienda" className="hover:text-foreground">
-            Tienda
-          </Link>
+          <Link href="/tienda" className="hover:text-foreground">Tienda</Link>
           <span>/</span>
           <span className="text-foreground">{product.name}</span>
         </div>
@@ -371,5 +330,5 @@ export default function ProductPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
