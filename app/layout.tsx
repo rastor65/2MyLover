@@ -1,3 +1,4 @@
+// ./v0/app/layout.tsx
 import type { Metadata } from "next";
 import "./globals.css";
 import { Playfair_Display, Inter } from "next/font/google";
@@ -6,13 +7,13 @@ import { CartProvider } from "@/contexts/cart-context";
 const playfair = Playfair_Display({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-playfair", // ⬅️ necesario para poder usar .variable
+  variable: "--font-playfair", // ← necesario para usar .variable
 });
 
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter", // ⬅️ necesario para poder usar .variable
+  variable: "--font-inter", // ← necesario para usar .variable
 });
 
 export const metadata: Metadata = {

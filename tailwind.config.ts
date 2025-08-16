@@ -1,24 +1,22 @@
-import type { Config } from "tailwindcss";
+// tailwind.config.js
+import animate from "tailwindcss-animate";
 
-const config = {
+/** @type {import('tailwindcss').Config} */
+export default {
+  darkMode: ["class"],
   content: [
     "./app/**/*.{ts,tsx,js,jsx,mdx}",
-    "./components/**/*.{ts,tsx,js,jsx}",
-    "./pages/**/*.{ts,tsx,js,jsx}",
+    "./components/**/*.{ts,tsx,js,jsx,mdx}",
+    "./pages/**/*.{ts,tsx,js,jsx,mdx}",
+    "./v0/**/*.{ts,tsx,js,jsx,mdx}",
   ],
   theme: {
     extend: {
       fontFamily: {
-        // Usa las variables que definiste con next/font
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
         serif: ["var(--font-playfair)", "serif"],
       },
     },
   },
-  plugins: [
-    // Si usas shadcn/ui, suele recomendarse:
-    require("tailwindcss-animate"),
-  ],
-} satisfies Config;
-
-export default config;
+  plugins: [animate],
+};
