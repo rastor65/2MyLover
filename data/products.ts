@@ -1,5 +1,7 @@
+// data/products.ts
 export type Product = {
-  id: string;            // usa slug estático
+  id: string;         // slug para la URL
+  cartId: number;     // id numérico para el carrito
   name: string;
   price: number;
   originalPrice?: number;
@@ -19,6 +21,7 @@ export type Product = {
 export const products: Product[] = [
   {
     id: "sueter-minimalista-negro",
+    cartId: 1, // ← numérico y único
     name: "Suéter Minimalista Negro",
     price: 89.99,
     originalPrice: 109.99,
@@ -46,4 +49,5 @@ export const products: Product[] = [
     reviews: 24,
     stock: 15
   }
+  // Agrega más productos con cartId: 2, 3, ...
 ];

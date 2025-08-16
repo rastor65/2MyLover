@@ -4,8 +4,8 @@ import { products } from "@/data/products";
 
 export const dynamicParams = false;
 
-export function generateStaticParams(): Array<{ id: string }> {
-  return products.map((p) => ({ id: p.id }));
+export function generateStaticParams() {
+  return products.map(p => ({ id: p.id }));
 }
 
 export async function generateMetadata({
