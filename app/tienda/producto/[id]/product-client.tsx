@@ -3,7 +3,15 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ShoppingBag, Heart, Share2, Minus, Plus, Star, ArrowLeft } from "lucide-react";
+import {
+  ShoppingBag,
+  Heart,
+  Share2,
+  Minus,
+  Plus,
+  Star,
+  ArrowLeft,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,7 +28,9 @@ export default function ProductClient({ product }: ProductClientProps) {
   const { addItem, openCart } = useCart();
 
   const [selectedSize, setSelectedSize] = useState<string>("");
-  const [selectedColor, setSelectedColor] = useState<string>(product.colors[0] ?? "");
+  const [selectedColor, setSelectedColor] = useState<string>(
+    product.colors[0] ?? ""
+  );
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedImage, setSelectedImage] = useState<number>(0);
 
@@ -29,10 +39,8 @@ export default function ProductClient({ product }: ProductClientProps) {
       alert("Por favor selecciona una talla");
       return;
     }
-
-    // Si tu contexto de carrito exige id numérico, ajusta aquí (p.ej. genera un hash o usa un índice)
     addItem({
-      id: product.id, // asegúrate de que tu Cart acepte string; si no, adapta este campo
+      id: product.id, // si tu carrito exige number, adapta aquí
       name: product.name,
       price: product.price,
       image: product.images[0],
@@ -41,7 +49,6 @@ export default function ProductClient({ product }: ProductClientProps) {
       stock: product.stock,
       quantity,
     });
-
     openCart();
   };
 
@@ -84,13 +91,9 @@ export default function ProductClient({ product }: ProductClientProps) {
       <div className="container mx-auto px-4 py-8">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 mb-8 text-sm text-muted">
-          <Link href="/" className="hover:text-foreground">
-            Inicio
-          </Link>
+          <Link href="/" className="hover:text-foreground">Inicio</Link>
           <span>/</span>
-          <Link href="/tienda" className="hover:text-foreground">
-            Tienda
-          </Link>
+          <Link href="/tienda" className="hover:text-foreground">Tienda</Link>
           <span>/</span>
           <span className="text-foreground">{product.name}</span>
         </div>
@@ -114,15 +117,17 @@ export default function ProductClient({ product }: ProductClientProps) {
                 height={600}
                 className="w-full h-96 lg:h-[600px] object-cover"
               />
-
-              {/* Badges */}
               <div className="absolute top-4 left-4 flex flex-col gap-2">
-                {product.isNew && <Badge className="bg-primary text-primary-foreground">Nuevo</Badge>}
-                {product.onSale && <Badge className="bg-destructive text-destructive-foreground">Oferta</Badge>}
+                {product.isNew && (
+                  <Badge className="bg-primary text-primary-foreground">Nuevo</Badge>
+                )}
+                {product.onSale && (
+                  <Badge className="bg-destructive text-destructive-foreground">Oferta</Badge>
+                )}
               </div>
             </div>
 
-            {/* Thumbnail Images */}
+            {/* Thumbs */}
             <div className="flex gap-2 overflow-x-auto">
               {product.images.map((image, index) => (
                 <button
@@ -180,7 +185,7 @@ export default function ProductClient({ product }: ProductClientProps) {
 
             <p className="text-muted leading-relaxed">{product.description}</p>
 
-            {/* Color Selection */}
+            {/* Color */}
             <div>
               <h3 className="font-medium mb-3">Color</h3>
               <div className="flex gap-2">
@@ -200,7 +205,7 @@ export default function ProductClient({ product }: ProductClientProps) {
               </div>
             </div>
 
-            {/* Size Selection */}
+            {/* Size */}
             <div>
               <h3 className="font-medium mb-3">Talla</h3>
               <div className="flex gap-2 flex-wrap">
@@ -249,7 +254,7 @@ export default function ProductClient({ product }: ProductClientProps) {
               </div>
             </div>
 
-            {/* Action Buttons */}
+            {/* Actions */}
             <div className="space-y-4">
               <Button size="lg" className="w-full" onClick={handleAddToCart}>
                 <ShoppingBag className="h-5 w-5 mr-2" />
@@ -268,7 +273,7 @@ export default function ProductClient({ product }: ProductClientProps) {
               </div>
             </div>
 
-            {/* Stock Status */}
+            {/* Stock */}
             <div className="p-4 bg-card rounded-lg">
               <div className="flex items-center justify-between">
                 <span className="font-medium">Estado del stock:</span>
@@ -280,7 +285,7 @@ export default function ProductClient({ product }: ProductClientProps) {
           </div>
         </div>
 
-        {/* Product Details Tabs */}
+        {/* Tabs */}
         <div className="mt-16">
           <Tabs defaultValue="description" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
@@ -295,8 +300,7 @@ export default function ProductClient({ product }: ProductClientProps) {
                   <p className="leading-relaxed">{product.description}</p>
                   <p className="mt-4 leading-relaxed">
                     Nuestro suéter minimalista representa la esencia de la moda urbana contemporánea. Diseñado para
-                    quienes buscan piezas versátiles que se adapten a cualquier ocasión, desde un día casual hasta una
-                    reunión importante.
+                    quienes buscan piezas versátiles que se adapten a cualquier ocasión.
                   </p>
                 </CardContent>
               </Card>
