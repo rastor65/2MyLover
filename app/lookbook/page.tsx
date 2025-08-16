@@ -15,7 +15,7 @@ const lookbookItems = [
     id: 1,
     title: "Urban Minimalist",
     description: "La perfecta combinación de suéter negro oversized con accesorios minimalistas",
-    image: "/urban-fashion-lookbook-bw-1.png",
+    image: "/2MyLover/urban-fashion-lookbook-bw-1.png",
     products: [
       { name: "Suéter Oversized Negro", price: 124.99, id: 3 },
       { name: "Gorra Urbana Blanca", price: 34.99, id: 2 },
@@ -28,7 +28,7 @@ const lookbookItems = [
     id: 2,
     title: "Essential White",
     description: "Elegancia en su forma más pura con nuestra línea blanca esencial",
-    image: "/urban-minimalist-lookbook-2.png",
+    image: "/2MyLover/urban-minimalist-lookbook-2.png",
     products: [
       { name: "Camiseta Essential Blanca", price: 49.99, id: 4 },
       { name: "Pack Accesorios Minimalista", price: 79.99, id: 6 },
@@ -41,7 +41,7 @@ const lookbookItems = [
     id: 3,
     title: "Street Sophistication",
     description: "Sofisticación urbana que redefine el estilo callejero contemporáneo",
-    image: "/urban-fashion-lookbook-3.png",
+    image: "/2MyLover/urban-fashion-lookbook-3.png",
     products: [
       { name: "Chaqueta Bomber Negra", price: 159.99, id: 5 },
       { name: "Suéter Minimalista Negro", price: 89.99, id: 1 },
@@ -54,7 +54,7 @@ const lookbookItems = [
     id: 4,
     title: "Monochrome Mastery",
     description: "Dominio absoluto del contraste en blanco y negro",
-    image: "/monochrome-street-style.png",
+    image: "/2MyLover/monochrome-street-style.png",
     products: [
       { name: "Suéter Cuello Alto Blanco", price: 94.99, id: 7 },
       { name: "Gorra Snapback Negra", price: 39.99, id: 8 },
@@ -67,7 +67,7 @@ const lookbookItems = [
     id: 5,
     title: "Effortless Elegance",
     description: "Elegancia sin esfuerzo para el día a día urbano",
-    image: "/effortless-urban-elegance.png",
+    image: "/2MyLover/effortless-urban-elegance.png",
     products: [
       { name: "Suéter Minimalista Negro", price: 89.99, id: 1 },
       { name: "Pack Accesorios Minimalista", price: 79.99, id: 6 },
@@ -80,7 +80,7 @@ const lookbookItems = [
     id: 6,
     title: "Bold Minimalism",
     description: "Minimalismo audaz que hace una declaración silenciosa",
-    image: "/bold-minimalist-look.png",
+    image: "/2MyLover/bold-minimalist-look.png",
     products: [
       { name: "Chaqueta Bomber Negra", price: 159.99, id: 5 },
       { name: "Gorra Urbana Blanca", price: 34.99, id: 2 },
@@ -346,12 +346,12 @@ export default function LookbookPage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {[
-              "/instagram-feed-1.png",
-              "/instagram-feed-2.png",
-              "/instagram-feed-3.png",
-              "/instagram-feed-4.png",
-              "/instagram-feed-5.png",
-              "/instagram-feed-6.png",
+              "/2MyLover/instagram-feed-1.png",
+              "/2MyLover/instagram-feed-2.png",
+              "/2MyLover/instagram-feed-3.png",
+              "/2MyLover/instagram-feed-4.png",
+              "/2MyLover/instagram-feed-5.png",
+              "/2MyLover/instagram-feed-6.png",
             ].map((src, index) => (
               <div key={index} className="relative group cursor-pointer overflow-hidden rounded-lg aspect-square">
                 <Image
