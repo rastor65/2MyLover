@@ -1,14 +1,14 @@
-import type { NextConfig } from "next";
+// next.config.mjs
+const isProd = process.env.NODE_ENV === 'production';
+const repo = process.env.GITHUB_REPOSITORY?.split('/')?.[1] ?? '';
 
-const isProd = process.env.NODE_ENV === "production";
-const repo = process.env.GITHUB_REPOSITORY?.split("/")[1] ?? "";
-
-const nextConfig: NextConfig = {
-  output: "export",
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  output: 'export',
   images: { unoptimized: true },
-  // Solo si tu sitio queda bajo /REPO (Project Pages):
-  basePath: isProd ? `/${repo}` : "",
-  assetPrefix: isProd ? `/${repo}/` : "",
+  // Usa basePath/assetPrefix SOLO si es Project Pages (sitio en /<repo>)
+  basePath: isProd && repo ? `/${repo}` : '',
+  assetPrefix: isProd && repo ? `/${repo}/` : '',
   trailingSlash: true
 };
 
