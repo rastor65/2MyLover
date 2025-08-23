@@ -86,7 +86,7 @@ export default function AboutPage() {
             </div>
             <div className="relative">
               <Image
-                src="/2MyLover/brand-story-image.png"
+                src="/brand-story-image.png"
                 alt="2MyLover Brand Story"
                 width={600}
                 height={700}
@@ -155,7 +155,7 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <div className="relative">
               <Image
-                src="/2MyLover/sustainable-fashion.png"
+                src="/sustainable-fashion.png"
                 alt="Sustainable Fashion"
                 width={600}
                 height={500}
@@ -223,19 +223,19 @@ export default function AboutPage() {
               {
                 name: "Sofia Martínez",
                 role: "Directora Creativa",
-                image: "/2MyLover/team-member-1.png",
+                image: "/team-member-1.png",
                 description: "Visionaria del diseño minimalista con 10 años de experiencia en moda urbana.",
               },
               {
                 name: "Carlos Rivera",
                 role: "Director de Producción",
-                image: "/2MyLover/team-member-2.png",
+                image: "/team-member-2.png",
                 description: "Experto en procesos sostenibles y calidad premium en la industria textil.",
               },
               {
                 name: "Ana López",
                 role: "Directora de Marca",
-                image: "/2MyLover/team-member-3.png",
+                image: "/team-member-3.png",
                 description: "Especialista en construcción de marca y experiencia del cliente en el sector fashion.",
               },
             ].map((member, index) => (

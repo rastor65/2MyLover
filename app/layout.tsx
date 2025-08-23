@@ -1,8 +1,10 @@
 // ./v0/app/layout.tsx
-import type { Metadata } from "next";
 import "./globals.css";
+import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import { CartProvider } from "@/contexts/cart-context";
+import type { ReactNode } from "react";
+import ClientProviders from "./ClientProviders";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -21,12 +23,12 @@ export const metadata: Metadata = {
   description: "Moda urbana minimalista en blanco y negro",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="es" className={`${playfair.className} ${inter.className} antialiased`}>
-      <body className="font-sans">
-        <CartProvider>{children}</CartProvider>
+    <html lang="es" className="antialiased">
+      <body className="min-h-screen bg-background text-foreground">
+        <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
-  );
+  )
 }

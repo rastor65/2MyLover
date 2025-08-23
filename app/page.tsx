@@ -1,3 +1,4 @@
+// app/page.tsx
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Heart, Search, Menu } from "lucide-react"
@@ -5,8 +6,40 @@ import Image from "next/image"
 import Link from "next/link"
 import { CartDrawer } from "@/components/cart-drawer"
 import { Footer } from "@/components/footer"
+import { prisma } from "@/lib/primsa" // 👈 tu helper actual
 
-export default function HomePage() {
+export const runtime = "nodejs"
+// Revalida cada 60s para refrescar destacados sin recargar en caliente
+export const revalidate = 60
+
+function formatMoney(v: any) {
+  // Prisma Decimal puede traer { toString() }, lo convertimos estable
+  try {
+    const n = Number(v)
+    if (Number.isFinite(n)) return `$${n.toFixed(2)}`
+    return `$${String(v)}`
+  } catch {
+    return `$${String(v)}`
+  }
+}
+
+export default async function HomePage() {
+  // Trae hasta 6 publicados más recientes
+  const featured = await prisma.product.findMany({
+    where: { status: "published" },
+    orderBy: { updatedAt: "desc" },
+    take: 6,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      price: true,
+      images: true,             // array de URLs
+      // Si quieres mostrar categoría principal (si existe):
+      categories: { select: { name: true, slug: true } },
+    },
+  })
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -54,7 +87,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/40 z-10" />
-        <Image src="/2MyLover/monochrome-urban-model.png" alt="2MyLover Hero" fill className="object-cover" priority />
+        <Image src="/monochrome-urban-model.png" alt="2MyLover Hero" fill className="object-cover" priority />
         <div className="relative z-20 text-center text-white max-w-4xl px-4">
           <h2 className="font-serif text-5xl md:text-7xl font-bold mb-6 tracking-tight">
             Vístete con estilo,
@@ -89,66 +122,71 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              {
-                name: "Suéter Minimalista Negro",
-                price: "$89.99",
-                image: "/2MyLover/minimalist-black-sweater.png",
-              },
-              {
-                name: "Gorra Urbana Blanca",
-                price: "$34.99",
-                image: "/2MyLover/minimalist-white-cap.png",
-              },
-              {
-                name: "Hoodie Oversized",
-                price: "$124.99",
-                image: "/2MyLover/oversized-black-hoodie-urban.png",
-              },
-              {
-                name: "Camiseta Essential",
-                price: "$49.99",
-                image: "/2MyLover/white-essential-t-shirt.png",
-              },
-              {
-                name: "Chaqueta Bomber",
-                price: "$159.99",
-                image: "/2MyLover/black-bomber-minimalist.png",
-              },
-              {
-                name: "Accesorios Pack",
-                price: "$79.99",
-                image: "/2MyLover/minimalist-bw-accessories.png",
-              },
-            ].map((product, index) => (
-              <Card
-                key={index}
-                className="group cursor-pointer border-0 shadow-none hover:shadow-lg transition-all duration-300"
-              >
-                <CardContent className="p-0">
-                  <div className="relative overflow-hidden">
-                    <Image
-                      src={product.image || "/placeholder.svg"}
-                      alt={product.name}
-                      width={300}
-                      height={400}
-                      className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                    <Button
-                      size="sm"
-                      className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    >
-                      Vista rápida
-                    </Button>
-                  </div>
-                  <div className="p-6 text-center">
-                    <h4 className="font-medium text-lg mb-2">{product.name}</h4>
-                    <p className="font-serif text-xl font-bold">{product.price}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {featured.length === 0 ? (
+              // fallback si aún no hay publicados
+              Array.from({ length: 6 }).map((_, i) => (
+                <Card
+                  key={`skeleton-${i}`}
+                  className="border-0 shadow-none hover:shadow-lg transition-all duration-300"
+                >
+                  <CardContent className="p-0">
+                    <div className="h-80 w-full bg-muted animate-pulse rounded-md" />
+                    <div className="p-6 text-center space-y-2">
+                      <div className="h-4 w-2/3 bg-muted rounded mx-auto animate-pulse" />
+                      <div className="h-4 w-1/3 bg-muted rounded mx-auto animate-pulse" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              featured.map((p) => {
+                const primaryImg =
+                  (Array.isArray(p.images) && p.images[0]) ? p.images[0] : "/placeholder.svg"
+                const cat = p.categories?.[0]
+                return (
+                  <Card
+                    key={p.id}
+                    className="group cursor-pointer border-0 shadow-none hover:shadow-lg transition-all duration-300"
+                  >
+                    <CardContent className="p-0">
+                      <Link href={`/tienda/${p.slug}`} className="block">
+                        <div className="relative overflow-hidden">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={primaryImg}
+                            alt={p.name}
+                            className="w-full h-80 object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                          <Button
+                            size="sm"
+                            className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                            asChild
+                          >
+                            <span>Vista rápida</span>
+                          </Button>
+                        </div>
+                        <div className="p-6 text-center">
+                          {cat && (
+                            <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                              {cat.name}
+                            </div>
+                          )}
+                          <h4 className="font-medium text-lg mb-2">{p.name}</h4>
+                          <p className="font-serif text-xl font-bold">{formatMoney(p.price)}</p>
+                        </div>
+                      </Link>
+                    </CardContent>
+                  </Card>
+                )
+              })
+            )}
+          </div>
+
+          <div className="text-center mt-12">
+            <Button variant="outline" size="lg" asChild>
+              <Link href="/tienda">Ver todo</Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -183,10 +221,10 @@ export default function HomePage() {
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              "/2MyLover/urban-fashion-lookbook-bw-1.png",
-              "/2MyLover/urban-minimalist-lookbook-2.png",
-              "/2MyLover/urban-fashion-lookbook-3.png",
-              "/2MyLover/placeholder.svg?height=300&width=300",
+              "/urban-fashion-lookbook-bw-1.png",
+              "/urban-minimalist-lookbook-2.png",
+              "/urban-fashion-lookbook-3.png",
+              "/placeholder.svg?height=300&width=300",
             ].map((src, index) => (
               <div key={index} className="relative group cursor-pointer overflow-hidden rounded-lg">
                 <Image

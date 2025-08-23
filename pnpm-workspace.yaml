@@ -1,3 +1,6 @@
 ignoredBuiltDependencies:
+  - '@firebase/util'
+  - '@prisma/client'
   - '@tailwindcss/oxide'
+  - protobufjs
   - sharp
