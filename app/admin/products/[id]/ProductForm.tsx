@@ -3,25 +3,21 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { z } from "zod"
-import { useForm } from "react-hook-form"
+import { useForm, type Resolver } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
-// ───────────────── Zod schema (tipado exacto con el formulario) ─────────────────
+// ───────────────── Zod schema ─────────────────
+// Tipos coaccionados y transformados para que el output sea estable
 const schema = z.object({
   name: z.string().min(1, "Nombre requerido"),
   slug: z.string().min(1, "Slug requerido").regex(/^[a-z0-9-]+$/, "Sólo minúsculas, números y -"),
-
-  // números coaccionados → RHF siempre entrega string desde <input type="number">
   price: z.coerce.number().nonnegative(),
   compareAt: z
     .union([z.coerce.number().nonnegative(), z.literal("")])
     .optional()
     .transform((v) => (v === "" || v == null ? undefined : v)),
-
   stock: z.coerce.number().int().nonnegative(),
   status: z.enum(["draft", "published", "archived"]),
-
-  // imagen opcional: permitimos URL http(s) o ruta relativa que empiece por "/"
   image: z
     .string()
     .max(2048)
@@ -31,18 +27,15 @@ const schema = z.object({
       (v) => v === undefined || /^https?:\/\//i.test(v) || v.startsWith("/"),
       { message: "URL inválida. Usa http(s):// o una ruta que empiece con /" }
     ),
-
-  // ids de categorías
-  categories: z.array(z.string()).default([]),
-
+  categories: z.array(z.string()).default([]), // ← SIEMPRE string[]
   description: z.string().optional(),
   seoTitle: z.string().optional(),
   seoDesc: z.string().optional(),
 })
 
-type FormData = z.infer<typeof schema>
+// Usa el OUTPUT del schema (post-transform, con defaults aplicados)
+type FormData = z.output<typeof schema>
 
-// Tipado sugerido del `initial` que recibes desde el server
 type Initial = {
   name: string
   slug: string
@@ -51,13 +44,9 @@ type Initial = {
   stock: number
   status: "draft" | "published" | "archived"
   description?: string | null
-  // si guardas una sola imagen en `images[0]`, puedes mapearla a `image`
   image?: string | null
-  // o si traes arreglo de imágenes, úsalo para popular `image` con la primera
   images?: string[] | null
-  // ids de categorías asociadas
   categoryIds?: string[]
-  // SEO
   seoTitle?: string | null
   seoDesc?: string | null
 }
@@ -79,9 +68,10 @@ export default function ProductForm({
     handleSubmit,
     setValue,
     watch,
-    formState: { errors, dirtyFields },
+    formState: { errors },
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    // Alinea el resolver con el tipo de salida del schema
+    resolver: zodResolver(schema) as Resolver<FormData>,
     defaultValues: {
       name: initial.name ?? "",
       slug: initial.slug ?? "",
@@ -93,13 +83,12 @@ export default function ProductForm({
       stock: Number(initial.stock ?? 0),
       status: initial.status ?? "draft",
       description: initial.description ?? "",
-      // toma la primera imagen disponible como `image`
       image:
         (initial.image ?? undefined) ??
         (Array.isArray(initial.images) && initial.images.length > 0
           ? initial.images[0]
           : undefined),
-      categories: initial.categoryIds ?? [],
+      categories: initial.categoryIds ?? [], // ← coincide con schema (string[])
       seoTitle: initial.seoTitle ?? "",
       seoDesc: initial.seoDesc ?? "",
     },
@@ -112,17 +101,16 @@ export default function ProductForm({
       setSaving(true)
       setError(null)
 
-      // normaliza payload a tu API
       const payload = {
         name: values.name,
         slug: values.slug,
         price: values.price,
-        compareAt: values.compareAt, // puede ser undefined
+        compareAt: values.compareAt, // number | undefined
         stock: values.stock,
         status: values.status,
         description: values.description || null,
-        images: values.image ? [values.image] : [], // 1 imagen por ahora
-        categories: values.categories,              // ids de categorías
+        images: values.image ? [values.image] : [],
+        categories: values.categories, // string[]
         seoTitle: values.seoTitle || null,
         seoDesc: values.seoDesc || null,
       }
@@ -132,7 +120,6 @@ export default function ProductForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-
       const j = await res.json().catch(() => null)
       if (!res.ok) throw new Error(j?.error || `Error ${res.status}`)
 
@@ -226,9 +213,9 @@ export default function ProductForm({
               Array.isArray(v)
                 ? v
                 : String(v || "")
-                    .split(",")
-                    .map((s) => s.trim())
-                    .filter(Boolean),
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean),
           })}
         />
         {errors.categories && (
