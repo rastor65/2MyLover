@@ -1,144 +1,147 @@
-"use client"
-
-import { useState } from "react"
+// app/tienda/page.tsx
+import Link from "next/link"
+import Image from "next/image"
+import { prisma } from "@/lib/primsa"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Heart, Search, Grid, List } from "lucide-react"
-import Image from "next/image"
-import Link from "next/link"
 import { CartDrawer } from "@/components/cart-drawer"
-import { Footer } from "@/components/footer" // Fixed import to use named export
+import { Footer } from "@/components/footer"
+import FilterBar from "@/components/tienda/FilterBar"
 
-// Mock product data
-const products = [
-  {
-    id: 1,
-    name: "Suéter Minimalista Negro",
-    price: 89.99,
-    originalPrice: 109.99,
-    category: "sueteres",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Negro"],
-    image: "/minimalist-black-sweater.png",
-    isNew: true,
-    onSale: true,
-  },
-  {
-    id: 2,
-    name: "Gorra Urbana Blanca",
-    price: 34.99,
-    category: "gorras",
-    sizes: ["Única"],
-    colors: ["Blanco"],
-    image: "/minimalist-white-cap.png",
-    isNew: false,
-    onSale: false,
-  },
-  {
-    id: 3,
-    name: "Hoodie Oversized Negro",
-    price: 124.99,
-    category: "sueteres",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    colors: ["Negro"],
-    image: "/oversized-black-hoodie-urban.png",
-    isNew: true,
-    onSale: false,
-  },
-  {
-    id: 4,
-    name: "Camiseta Essential Blanca",
-    price: 49.99,
-    category: "camisetas",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Blanco"],
-    image: "/white-essential-t-shirt.png",
-    isNew: false,
-    onSale: false,
-  },
-  {
-    id: 5,
-    name: "Chaqueta Bomber Negra",
-    price: 159.99,
-    category: "chaquetas",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Negro"],
-    image: "/black-bomber-minimalist.png",
-    isNew: false,
-    onSale: false,
-  },
-  {
-    id: 6,
-    name: "Pack Accesorios Minimalista",
-    price: 79.99,
-    category: "accesorios",
-    sizes: ["Única"],
-    colors: ["Negro", "Blanco"],
-    image: "/minimalist-bw-accessories.png",
-    isNew: true,
-    onSale: false,
-  },
-  {
-    id: 7,
-    name: "Suéter Cuello Alto Blanco",
-    price: 94.99,
-    category: "sueteres",
-    sizes: ["S", "M", "L", "XL"],
-    colors: ["Blanco"],
-    image: "/minimalist-white-turtleneck.png",
-    isNew: false,
-    onSale: false,
-  },
-  {
-    id: 8,
-    name: "Gorra Snapback Negra",
-    price: 39.99,
-    category: "gorras",
-    sizes: ["Única"],
-    colors: ["Negro"],
-    image: "/placeholder-2jez3.png",
-    isNew: false,
-    onSale: false,
-  },
-]
+export const runtime = "nodejs"
+export const revalidate = 60
 
-export default function TiendaPage() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("all")
-  const [selectedSize, setSelectedSize] = useState("all")
-  const [selectedColor, setSelectedColor] = useState("all")
-  const [sortBy, setSortBy] = useState("featured")
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
+type SPromise = Promise<Record<string, string | string[] | undefined>>
 
-  // Filter products based on search and filters
-  const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === "all" || product.category === selectedCategory
-    const matchesSize = selectedSize === "all" || product.sizes.includes(selectedSize)
-    const matchesColor =
-      selectedColor === "all" || product.colors.some((color) => color.toLowerCase() === selectedColor.toLowerCase())
+function money(v: any) {
+  try {
+    const n = Number(v)
+    if (Number.isFinite(n)) return `$${n.toFixed(2)}`
+    return `$${String(v)}`
+  } catch {
+    return `$${String(v)}`
+  }
+}
 
-    return matchesSearch && matchesCategory && matchesSize && matchesColor
-  })
+function toStringParam(p?: string | string[]) {
+  if (Array.isArray(p)) return p[0] ?? ""
+  return p ?? ""
+}
 
-  // Sort products
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case "price-low":
-        return a.price - b.price
-      case "price-high":
-        return b.price - a.price
-      case "name":
-        return a.name.localeCompare(b.name)
-      case "newest":
-        return b.isNew ? 1 : -1
-      default:
-        return 0
-    }
-  })
+function activeClass(cond: boolean, a: string, b: string) {
+  return cond ? a : b
+}
+
+function firstImageAsString(images: unknown): string | undefined {
+  // Soporta: string | string[] | Json raro
+  if (typeof images === "string") return images
+  if (Array.isArray(images)) {
+    const s = images.find((x) => typeof x === "string")
+    return s as string | undefined
+  }
+  // También puede venir como {0:"...", ...}
+  if (images && typeof images === "object") {
+    const maybeArray = Object.values(images as Record<string, unknown>)
+    const s = maybeArray.find((x) => typeof x === "string")
+    return s as string | undefined
+  }
+  return undefined
+}
+
+export default async function TiendaPage({
+  searchParams,
+}: {
+  searchParams: SPromise
+}) {
+  const sp = await searchParams
+
+  const q = toStringParam(sp.q).trim()
+  const category = toStringParam(sp.category) || "all"
+  const sortBy =
+    toStringParam(sp.sort) || "featured" // featured | newest | price-asc | price-desc | name
+  const view = (toStringParam(sp.view) as "grid" | "list") || "grid"
+  const page = Math.max(1, Number(toStringParam(sp.page) || "1"))
+  const perPage = Math.min(48, Math.max(1, Number(toStringParam(sp.perPage) || "12")))
+  const skip = (page - 1) * perPage
+
+  // Filtros
+  const where: any = {
+    status: "published",
+    ...(q
+      ? {
+        OR: [
+          { name: { contains: q, mode: "insensitive" } },
+          { slug: { contains: q, mode: "insensitive" } },
+          { tags: { has: q.toLowerCase() } },
+        ],
+      }
+      : {}),
+    ...(category !== "all"
+      ? { categories: { some: { slug: category } } }
+      : {}),
+  }
+
+  // Orden
+  let orderBy: any = { updatedAt: "desc" } // featured
+  if (sortBy === "newest") orderBy = { createdAt: "desc" }
+  if (sortBy === "price-asc") orderBy = { price: "asc" }
+  if (sortBy === "price-desc") orderBy = { price: "desc" }
+  if (sortBy === "name") orderBy = { name: "asc" }
+
+  // Datos
+  const [items, total, allCategories] = await Promise.all([
+    prisma.product.findMany({
+      where,
+      orderBy,
+      skip,
+      take: perPage,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        price: true,
+        compareAt: true,
+        images: true,
+        categories: { select: { name: true, slug: true } },
+        createdAt: true,
+        updatedAt: true,
+      },
+    }),
+    prisma.product.count({ where }),
+    prisma.category.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, slug: true, _count: { select: { products: true } } },
+    }),
+  ])
+
+  const pages = Math.max(1, Math.ceil(total / perPage))
+
+  // Helper para construir URLs de filtros conservando el resto
+  function buildQS(next: Partial<Record<string, string | number>>) {
+    const u = new URLSearchParams()
+    if (q) u.set("q", q)
+    if (category) u.set("category", category)
+    if (sortBy) u.set("sort", sortBy)
+    if (view) u.set("view", view)
+    if (perPage) u.set("perPage", String(perPage))
+    if (page) u.set("page", String(page))
+
+    Object.entries(next).forEach(([k, v]) => {
+      if (v === undefined || v === null || v === "") u.delete(k)
+      else u.set(k, String(v))
+    })
+    return "?" + u.toString()
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -168,8 +171,10 @@ export default function TiendaPage() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <Search className="h-5 w-5" />
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/tienda" aria-label="Buscar">
+                <Search className="h-5 w-5" />
+              </Link>
             </Button>
             <Button variant="ghost" size="icon">
               <Heart className="h-5 w-5" />
@@ -180,193 +185,222 @@ export default function TiendaPage() {
       </header>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Page Header */}
+        {/* Título */}
         <div className="mb-8">
           <h1 className="font-serif text-4xl font-bold mb-4">Tienda</h1>
-          <p className="text-muted text-lg">Descubre nuestra colección completa de moda urbana minimalista</p>
+          <p className="text-muted text-lg">
+            Descubre nuestra colección completa de moda urbana minimalista
+          </p>
         </div>
 
-        {/* Filters and Search */}
+        {/* Filtros / búsqueda */}
         <div className="mb-8 space-y-4">
-          {/* Search Bar */}
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted" />
-            <Input
-              placeholder="Buscar productos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          {/* Búsqueda */}
+          <FilterBar
+            categories={allCategories}
+            q={q}
+            category={category}
+            sortBy={sortBy}
+            view={view}
+            perPage={perPage}
+          />
 
-          {/* Filter Controls */}
+          {/* Controles */}
           <div className="flex flex-wrap gap-4 items-center">
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Categoría" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="sueteres">Suéteres</SelectItem>
-                <SelectItem value="gorras">Gorras</SelectItem>
-                <SelectItem value="camisetas">Camisetas</SelectItem>
-                <SelectItem value="chaquetas">Chaquetas</SelectItem>
-                <SelectItem value="accesorios">Accesorios</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Categoría */}
+            <form action="/tienda">
+              <input type="hidden" name="q" value={q} />
+              <input type="hidden" name="sort" value={sortBy} />
+              <input type="hidden" name="view" value={view} />
+              <input type="hidden" name="perPage" value={perPage} />
+              <Select
+                defaultValue={category}
+                onValueChange={(val) => {
+                  // submit GET
+                  const f = document.currentScript?.parentElement as HTMLFormElement | null
+                  if (f) {
+                    const el = f.querySelector('input[name="category"]') as HTMLInputElement
+                    if (el) el.value = val
+                    f.submit()
+                  }
+                }}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Categoría" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todas</SelectItem>
+                  {allCategories.map((c) => (
+                    <SelectItem key={c.slug} value={c.slug}>
+                      {c.name} {c._count.products ? `(${c._count.products})` : ""}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <input name="category" defaultValue={category} hidden />
+            </form>
 
-            <Select value={selectedSize} onValueChange={setSelectedSize}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Talla" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="S">S</SelectItem>
-                <SelectItem value="M">M</SelectItem>
-                <SelectItem value="L">L</SelectItem>
-                <SelectItem value="XL">XL</SelectItem>
-                <SelectItem value="XXL">XXL</SelectItem>
-                <SelectItem value="Única">Única</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Orden */}
+            <form action="/tienda">
+              <input type="hidden" name="q" value={q} />
+              <input type="hidden" name="category" value={category} />
+              <input type="hidden" name="view" value={view} />
+              <input type="hidden" name="perPage" value={perPage} />
+              <Select
+                defaultValue={sortBy}
+                onValueChange={(val) => {
+                  const f = document.currentScript?.parentElement as HTMLFormElement | null
+                  if (f) {
+                    const el = f.querySelector('input[name="sort"]') as HTMLInputElement
+                    if (el) el.value = val
+                    f.submit()
+                  }
+                }}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Ordenar por" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="featured">Destacados</SelectItem>
+                  <SelectItem value="newest">Más nuevos</SelectItem>
+                  <SelectItem value="price-asc">Precio: menor a mayor</SelectItem>
+                  <SelectItem value="price-desc">Precio: mayor a menor</SelectItem>
+                  <SelectItem value="name">Nombre A-Z</SelectItem>
+                </SelectContent>
+              </Select>
+              <input name="sort" defaultValue={sortBy} hidden />
+            </form>
 
-            <Select value={selectedColor} onValueChange={setSelectedColor}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Color" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
-                <SelectItem value="negro">Negro</SelectItem>
-                <SelectItem value="blanco">Blanco</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="Ordenar por" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="featured">Destacados</SelectItem>
-                <SelectItem value="newest">Más nuevos</SelectItem>
-                <SelectItem value="price-low">Precio: menor a mayor</SelectItem>
-                <SelectItem value="price-high">Precio: mayor a menor</SelectItem>
-                <SelectItem value="name">Nombre A-Z</SelectItem>
-              </SelectContent>
-            </Select>
-
+            {/* Vista */}
             <div className="flex gap-2 ml-auto">
-              <Button
-                variant={viewMode === "grid" ? "default" : "outline"}
-                size="icon"
-                onClick={() => setViewMode("grid")}
-              >
-                <Grid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "list" ? "default" : "outline"}
-                size="icon"
-                onClick={() => setViewMode("list")}
-              >
-                <List className="h-4 w-4" />
-              </Button>
+              <Link href={buildQS({ view: "grid", page: 1 })}>
+                <Button
+                  variant={activeClass(view === "grid", "default", "outline") as any}
+                  size="icon"
+                  aria-label="Ver en grilla"
+                >
+                  <Grid className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href={buildQS({ view: "list", page: 1 })}>
+                <Button
+                  variant={activeClass(view === "list", "default", "outline") as any}
+                  size="icon"
+                  aria-label="Ver en lista"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
 
-        {/* Results Count */}
+        {/* Conteo */}
         <div className="mb-6">
           <p className="text-muted">
-            Mostrando {sortedProducts.length} de {products.length} productos
+            Mostrando {items.length} de {total} productos
           </p>
         </div>
 
-        {/* Product Grid */}
+        {/* Grid / List */}
         <div
-          className={`grid gap-6 ${
-            viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" : "grid-cols-1"
-          }`}
+          className={`grid gap-6 ${view === "grid"
+            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            : "grid-cols-1"
+            }`}
         >
-          {sortedProducts.map((product) => (
-            <Card
-              key={product.id}
-              className={`group cursor-pointer border-0 shadow-none hover:shadow-lg transition-all duration-300 ${
-                viewMode === "list" ? "flex" : ""
-              }`}
-            >
-              <CardContent className={`p-0 ${viewMode === "list" ? "flex w-full" : ""}`}>
-                <div className={`relative overflow-hidden ${viewMode === "list" ? "w-48 flex-shrink-0" : ""}`}>
-                  <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    width={300}
-                    height={400}
-                    className={`object-cover group-hover:scale-105 transition-transform duration-300 ${
-                      viewMode === "list" ? "w-48 h-48" : "w-full h-80"
-                    }`}
-                  />
+          {items.map((p) => {
+            const img = firstImageAsString(p.images) ?? "/placeholder.svg"
+            const cat = p.categories?.[0]
+            const original = p.compareAt ? Number(p.compareAt) : undefined
 
-                  {/* Badges */}
-                  <div className="absolute top-4 left-4 flex flex-col gap-2">
-                    {product.isNew && <Badge className="bg-primary text-primary-foreground">Nuevo</Badge>}
-                    {product.onSale && <Badge className="bg-destructive text-destructive-foreground">Oferta</Badge>}
+            return (
+              <Card
+                key={p.id}
+                className={`group cursor-pointer border-0 shadow-none hover:shadow-lg transition-all duration-300 ${view === "list" ? "flex" : ""
+                  }`}
+              >
+                <CardContent className={`p-0 ${view === "list" ? "flex w-full" : ""}`}>
+                  <div
+                    className={`relative overflow-hidden ${view === "list" ? "w-48 flex-shrink-0" : ""
+                      }`}
+                  >
+                    <img
+                      src={img}
+                      alt={p.name}
+                      className={`object-cover group-hover:scale-105 transition-transform duration-300 ${view === "list" ? "w-48 h-48" : "w-full h-80"
+                        }`}
+                    />
+                    <div className="absolute top-4 left-4 flex flex-col gap-2">
+                      {/* Puedes marcar “Nuevo” por lógica (ej. <30 días) si quieres */}
+                      {/* <Badge className="bg-primary text-primary-foreground">Nuevo</Badge> */}
+                    </div>
+                    <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="Favorito">
+                        <Heart className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <Link
+                      href={`/tienda/${p.slug}`}
+                      className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    >
+                      <Button size="sm">Ver producto</Button>
+                    </Link>
                   </div>
 
-                  {/* Quick Actions */}
-                  <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <Button size="icon" variant="secondary" className="h-8 w-8">
-                      <Heart className="h-4 w-4" />
+                  <div
+                    className={`p-6 ${view === "list" ? "flex-1 flex flex-col justify-center" : "text-center"
+                      }`}
+                  >
+                    {cat && (
+                      <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
+                        {cat.name}
+                      </div>
+                    )}
+                    <h4 className="font-medium text-lg mb-2">{p.name}</h4>
+                    <div className="flex items-center gap-2 mb-4 justify-center">
+                      <span className="font-serif text-xl font-bold">{money(p.price)}</span>
+                      {original && (
+                        <span className="text-muted line-through text-sm">{money(original)}</span>
+                      )}
+                    </div>
+                    <Button className={view === "list" ? "w-40" : "w-full"} asChild>
+                      <Link href={`/tienda/${p.slug}`}>Agregar al carrito</Link>
                     </Button>
                   </div>
-
-                  {/* Quick View Button */}
-                  <Button
-                    size="sm"
-                    className="absolute bottom-4 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                    asChild
-                  >
-                    <Link href={`/tienda/producto/${product.id}`}>Vista rápida</Link>
-                  </Button>
-                </div>
-
-                <div className={`p-6 ${viewMode === "list" ? "flex-1 flex flex-col justify-center" : "text-center"}`}>
-                  <h4 className="font-medium text-lg mb-2">{product.name}</h4>
-                  <div className="flex items-center gap-2 mb-2 justify-center">
-                    <span className="font-serif text-xl font-bold">${product.price}</span>
-                    {product.originalPrice && (
-                      <span className="text-muted line-through text-sm">${product.originalPrice}</span>
-                    )}
-                  </div>
-                  <div className="flex flex-wrap gap-1 justify-center mb-4">
-                    {product.colors.map((color) => (
-                      <Badge key={color} variant="outline" className="text-xs">
-                        {color}
-                      </Badge>
-                    ))}
-                  </div>
-                  <Button className="w-full" asChild>
-                    <Link href={`/tienda/producto/${product.id}`}>Agregar al carrito</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
 
-        {/* Empty State */}
-        {sortedProducts.length === 0 && (
+        {/* Estado vacío */}
+        {items.length === 0 && (
           <div className="text-center py-16">
             <h3 className="font-serif text-2xl font-bold mb-4">No se encontraron productos</h3>
-            <p className="text-muted mb-6">Intenta ajustar tus filtros de búsqueda</p>
-            <Button
-              onClick={() => {
-                setSearchTerm("")
-                setSelectedCategory("all")
-                setSelectedSize("all")
-                setSelectedColor("all")
-              }}
-            >
-              Limpiar filtros
-            </Button>
+            <p className="text-muted mb-6">Intenta ajustar tus filtros o búsqueda</p>
+            <Link href="/tienda">
+              <Button>Limpiar filtros</Button>
+            </Link>
+          </div>
+        )}
+
+        {/* Paginación */}
+        {pages > 1 && (
+          <div className="flex items-center justify-center gap-2 mt-10">
+            <Link href={buildQS({ page: Math.max(1, page - 1) })}>
+              <Button variant="outline" disabled={page <= 1}>
+                Anterior
+              </Button>
+            </Link>
+            <span className="text-sm text-muted-foreground">
+              Página {page} de {pages}
+            </span>
+            <Link href={buildQS({ page: Math.min(pages, page + 1) })}>
+              <Button variant="outline" disabled={page >= pages}>
+                Siguiente
+              </Button>
+            </Link>
           </div>
         )}
       </div>

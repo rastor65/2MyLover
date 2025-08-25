@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/primsa" // cambia a "@/lib/prisma" si aplica
-import { Prisma } from "@prisma/client"
+import { prisma } from "@/lib/primsa"
 import { slugify, toSeoTitle, toSeoDescription } from "@/lib/slug"
 
 export const runtime = "nodejs"
@@ -39,23 +38,19 @@ export async function PUT(req: Request, { params }: Ctx) {
         (typeof body.seoTitle !== "undefined" && body.seoTitle !== null
           ? String(body.seoTitle).trim()
           : body.name
-          ? toSeoTitle(body.name)
-          : undefined),
+            ? toSeoTitle(body.name)
+            : undefined),
       seoDesc:
         (typeof body.seoDesc !== "undefined" && body.seoDesc !== null
           ? String(body.seoDesc).trim()
           : typeof body.description !== "undefined"
-          ? toSeoDescription(body.description)
-          : undefined),
+            ? toSeoDescription(body.description)
+            : undefined),
     }
 
-    if (typeof body.price !== "undefined") {
-      data.price = new Prisma.Decimal(String(body.price))
-    }
-    if (typeof body.compareAt !== "undefined") {
-      data.compareAt =
-        body.compareAt == null ? null : new Prisma.Decimal(String(body.compareAt))
-    }
+    if (typeof body.price !== "undefined") data.price = Number(body.price)
+    if (typeof body.compareAt !== "undefined")
+      data.compareAt = body.compareAt == null ? null : Number(body.compareAt)
 
     if (Array.isArray(body.categories)) {
       data.categories = { set: body.categories.map((catId: string) => ({ id: catId })) }

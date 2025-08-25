@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
-import { prisma } from "@/lib/primsa" // ⇐ usa "@/lib/prisma" si ese es tu archivo real
-import { Prisma } from "@prisma/client"
+import { prisma } from "@/lib/primsa"
 import { slugify, toSeoTitle, toSeoDescription } from "@/lib/slug"
 
 export const runtime = "nodejs"
@@ -75,9 +74,9 @@ export async function POST(req: Request) {
 
     const name: string = body.name
     const slug: string = (body.slug && String(body.slug).trim()) || slugify(name)
-    const price = new Prisma.Decimal(String(body.price))
+    const price = Number(body.price)
     const compareAt =
-      body.compareAt == null ? null : new Prisma.Decimal(String(body.compareAt))
+      body.compareAt = body.compareAt == null ? null : Number(body.compareAt)
 
     const seoTitle = (body.seoTitle && String(body.seoTitle).trim()) || toSeoTitle(name)
     const seoDesc =
