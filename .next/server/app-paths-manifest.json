@@ -1,7 +1,7 @@
 {
-  "/nosotros/page": "app/nosotros/page.js",
-  "/tienda/page": "app/tienda/page.js",
-  "/lookbook/page": "app/lookbook/page.js",
   "/page": "app/page.js",
-  "/contacto/page": "app/contacto/page.js"
+  "/contacto/page": "app/contacto/page.js",
+  "/lookbook/page": "app/lookbook/page.js",
+  "/nosotros/page": "app/nosotros/page.js",
+  "/tienda/page": "app/tienda/page.js"
 }
