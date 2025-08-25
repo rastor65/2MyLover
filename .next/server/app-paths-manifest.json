@@ -1,8 +1,7 @@
 {
-  "/icon.png/route": "app/icon.png/route.js",
-  "/tienda/page": "app/tienda/page.js",
-  "/contacto/page": "app/contacto/page.js",
-  "/lookbook/page": "app/lookbook/page.js",
   "/nosotros/page": "app/nosotros/page.js",
-  "/page": "app/page.js"
+  "/tienda/page": "app/tienda/page.js",
+  "/lookbook/page": "app/lookbook/page.js",
+  "/page": "app/page.js",
+  "/contacto/page": "app/contacto/page.js"
 }
