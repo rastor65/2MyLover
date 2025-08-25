@@ -23,6 +23,26 @@ export const revalidate = 60
 
 type SPromise = Promise<Record<string, string | string[] | undefined>>
 
+// Tipos UI para evitar implicit any
+type UiCategory = {
+  id: string
+  name: string
+  slug: string
+  _count: { products: number }
+}
+
+type UiProduct = {
+  id: string
+  name: string
+  slug: string
+  price: unknown
+  compareAt: unknown
+  images: unknown
+  categories: { name: string; slug: string }[]
+  createdAt: Date
+  updatedAt: Date
+}
+
 function money(v: any) {
   try {
     const n = Number(v)
@@ -43,13 +63,11 @@ function activeClass(cond: boolean, a: string, b: string) {
 }
 
 function firstImageAsString(images: unknown): string | undefined {
-  // Soporta: string | string[] | Json raro
   if (typeof images === "string") return images
   if (Array.isArray(images)) {
     const s = images.find((x) => typeof x === "string")
     return s as string | undefined
   }
-  // También puede venir como {0:"...", ...}
   if (images && typeof images === "object") {
     const maybeArray = Object.values(images as Record<string, unknown>)
     const s = maybeArray.find((x) => typeof x === "string")
@@ -79,12 +97,12 @@ export default async function TiendaPage({
     status: "published",
     ...(q
       ? {
-        OR: [
-          { name: { contains: q, mode: "insensitive" } },
-          { slug: { contains: q, mode: "insensitive" } },
-          { tags: { has: q.toLowerCase() } },
-        ],
-      }
+          OR: [
+            { name: { contains: q, mode: "insensitive" } },
+            { slug: { contains: q, mode: "insensitive" } },
+            { tags: { has: q.toLowerCase() } },
+          ],
+        }
       : {}),
     ...(category !== "all"
       ? { categories: { some: { slug: category } } }
@@ -116,12 +134,17 @@ export default async function TiendaPage({
         createdAt: true,
         updatedAt: true,
       },
-    }),
+    }) as Promise<UiProduct[]>,
     prisma.product.count({ where }),
     prisma.category.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true, slug: true, _count: { select: { products: true } } },
-    }),
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        _count: { select: { products: true } },
+      },
+    }) as Promise<UiCategory[]>,
   ])
 
   const pages = Math.max(1, Math.ceil(total / perPage))
@@ -216,7 +239,6 @@ export default async function TiendaPage({
               <Select
                 defaultValue={category}
                 onValueChange={(val) => {
-                  // submit GET
                   const f = document.currentScript?.parentElement as HTMLFormElement | null
                   if (f) {
                     const el = f.querySelector('input[name="category"]') as HTMLInputElement
@@ -230,9 +252,9 @@ export default async function TiendaPage({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas</SelectItem>
-                  {allCategories.map((c) => (
+                  {allCategories.map((c: UiCategory) => (
                     <SelectItem key={c.slug} value={c.slug}>
-                      {c.name} {c._count.products ? `(${c._count.products})` : ""}
+                      {c.name} {c._count?.products ? `(${c._count.products})` : ""}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -304,12 +326,13 @@ export default async function TiendaPage({
 
         {/* Grid / List */}
         <div
-          className={`grid gap-6 ${view === "grid"
-            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-            : "grid-cols-1"
-            }`}
+          className={`grid gap-6 ${
+            view === "grid"
+              ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              : "grid-cols-1"
+          }`}
         >
-          {items.map((p) => {
+          {items.map((p: UiProduct) => {
             const img = firstImageAsString(p.images) ?? "/placeholder.svg"
             const cat = p.categories?.[0]
             const original = p.compareAt ? Number(p.compareAt) : undefined
@@ -317,24 +340,23 @@ export default async function TiendaPage({
             return (
               <Card
                 key={p.id}
-                className={`group cursor-pointer border-0 shadow-none hover:shadow-lg transition-all duration-300 ${view === "list" ? "flex" : ""
-                  }`}
+                className={`group cursor-pointer border-0 shadow-none hover:shadow-lg transition-all duration-300 ${
+                  view === "list" ? "flex" : ""
+                }`}
               >
                 <CardContent className={`p-0 ${view === "list" ? "flex w-full" : ""}`}>
                   <div
-                    className={`relative overflow-hidden ${view === "list" ? "w-48 flex-shrink-0" : ""
-                      }`}
+                    className={`relative overflow-hidden ${
+                      view === "list" ? "w-48 flex-shrink-0" : ""
+                    }`}
                   >
                     <img
                       src={img}
                       alt={p.name}
-                      className={`object-cover group-hover:scale-105 transition-transform duration-300 ${view === "list" ? "w-48 h-48" : "w-full h-80"
-                        }`}
+                      className={`object-cover group-hover:scale-105 transition-transform duration-300 ${
+                        view === "list" ? "w-48 h-48" : "w-full h-80"
+                      }`}
                     />
-                    <div className="absolute top-4 left-4 flex flex-col gap-2">
-                      {/* Puedes marcar “Nuevo” por lógica (ej. <30 días) si quieres */}
-                      {/* <Badge className="bg-primary text-primary-foreground">Nuevo</Badge> */}
-                    </div>
                     <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <Button size="icon" variant="secondary" className="h-8 w-8" aria-label="Favorito">
                         <Heart className="h-4 w-4" />
@@ -349,8 +371,9 @@ export default async function TiendaPage({
                   </div>
 
                   <div
-                    className={`p-6 ${view === "list" ? "flex-1 flex flex-col justify-center" : "text-center"
-                      }`}
+                    className={`p-6 ${
+                      view === "list" ? "flex-1 flex flex-col justify-center" : "text-center"
+                    }`}
                   >
                     {cat && (
                       <div className="text-xs uppercase tracking-wider text-muted-foreground mb-1">
